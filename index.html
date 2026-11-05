@@ -326,6 +326,14 @@ const SDK={
       else if(t==='VKWebAppViewRestore')pause('hidden',false);});}catch(e){}
   },
   ready(){},gpStart(){},gpStop(){},
+  async banner(){
+    if(!IN_VK||this._banner)return;this._banner=1;
+    try{const c=await vkSend('VKWebAppCheckBannerAd',{},5000);if(c&&c.result)return;}catch(e){}
+    try{const r=await vkSend('VKWebAppShowBannerAd',{banner_location:'bottom'},15000);
+      const h=+(r&&(r.banner_height||r.height))||0;
+      if(h>0){document.getElementById('app').style.height=`calc(100dvh - ${h}px)`;setTimeout(()=>{try{buildWorld();}catch(e){}},300);}
+    }catch(e){console.warn('banner',e);this._banner=0;}
+  },
   async fullscreen(){
     if(!IN_VK||Date.now()-this.lastAd<AD_GAP)return;
     this.lastAd=Date.now();pause('ad',true);
@@ -1165,6 +1173,7 @@ function tutTick(){
     else ring.classList.remove('on');
   }else ring.classList.remove('on');
 }
+setInterval(()=>{if(S.tut>=TUT.length)SDK.banner();},5000);
 $('tutBtn').onclick=()=>{if(S.tut>=TUT.length){tip.until=0;tutTick();return;}S.tut++;tone(1046,.15);if(S.tut>=TUT.length){S.nextEv=Date.now()+25000;tip.next=Date.now()+60000;queueModal(checkDaily);}tutTick();};
 
 // =====================================================================
